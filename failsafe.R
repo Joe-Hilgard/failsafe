@@ -110,6 +110,7 @@ fsn(yi = d, vi = d_v, data = result, subset = pub == 1, type = "Orwin")
 fsn(yi = d, vi = d_v, data = result, subset = pub == 1, type = "Rosenberg")
 
 # QRP: Collect three measures, report one; p-peek every 10 subjects ----
+# 
 k = 100
 d.true = 0
 null.pub.prob = .05
@@ -122,7 +123,7 @@ df = n.cell*2 - 2
 result = data.frame("d" = NULL, "d_v" = NULL, "d_se" = NULL, "p" = NULL)
 
 for (i in 1:k) {
-  sig = F
+  run = T
   n.iter = n.cell[i]
   df.iter = df[i]
   dat = data.frame("x" = rep(0:1, each=n.iter),
@@ -130,7 +131,7 @@ for (i in 1:k) {
                    "y2" = rnorm(n.iter*2) + d.true*rep(0:1, each=n.iter),
                    "y3" = rnorm(n.iter*2) + d.true*rep(0:1, each=n.iter)
   )
-  while (sig == F) {
+  while (run == T) {
     mod1 = lm(y1 ~ x, dat)
     mod2 = lm(y2 ~ x, dat)
     mod3 = lm(y3 ~ x, dat)
@@ -144,14 +145,17 @@ for (i in 1:k) {
       t = t1
       p = p1
       test = 1
+      run = F
     } else if (p2 < .05) {
       t = t2
       p = p2
       test = 2
+      run = F
     } else if (p3 < .05) {
       t = t3
       p = p3
       test = 3
+      run = F
     } else if (n.iter < 150) {
       n.iter = n.iter + 5
       df.iter = df.iter + 5
@@ -165,6 +169,7 @@ for (i in 1:k) {
       t = t1
       p = p1
       test = 1
+      run = F
     }
   }
   out = data.frame("d" = 2*t/sqrt(2*n.iter), "test" = test, "n" = n.iter)
